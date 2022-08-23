@@ -1,0 +1,183 @@
+.TH CONCAT 1 2022-05-27 0.1
+
+.SH NAME
+concat \- concatenate file lines
+
+.SH SYNOPSIS
+.SY concat
+.OP \-vhlwne 
+.OP \-s sep
+.OP \-g num
+.OP \-S sep
+.RI [ file ]
+.YS
+A 
+.I file
+cannot be passed when text is piped into
+.BR concat .
+
+.SH DESCRIPTION
+Commandline program to concatenate file lines.
+Supports a separator string, removing empty lines, removing leading whitespaces, grouping and can be used in pipes.
+
+.SH OPTIONS
+.TP
+.BR \-s " " \fIsep
+optional separator string
+
+.TP
+.BR \-g " " \fInum
+add group separator string after
+.I num
+of lines
+
+.TP
+.BR \-S " " \fIsep
+optional group separator string (default is newline)
+
+.TP
+.B \-e
+interpret some few escape sequences (\\,\t,\n)
+
+.TP
+.B \-l
+remove empty lines
+
+.TP
+.B \-w 
+remove leading whitespaces
+
+.TP
+.B \-n
+do not output the trailing newline
+
+.TP
+.B \-v
+print version info
+
+.TP
+.B \-h
+print help text
+
+.SH EXAMPLES
+.SS Simple Concatenation
+$ cat file
+.br
+a
+.br
+b
+.br
+c
+.br
+$ concat file
+.br
+abc
+.br
+$ echo -e "a\\nb\\nc" | concat
+.br
+abc
+
+.SS Concatenation With Separator With \fI-s
+$ cat file
+.br
+a
+.br
+b
+.br
+c
+.br
+$ concat -s ',' file
+.br
+a,b,c
+.br
+$ cat file | tr '\\n' ','
+.br
+a,b,c,
+.br
+$ concat -e -s '\\t' file
+.br
+a    b    c
+.br
+$ concat -s ' - ' file
+.br
+a - b - c
+.sp 2
+Notice how \fBtr\fR would replace also the last newline with a comma,
+which sometimes is not what you want,
+e.g. when in CSV files the last comma would create a new empty column.
+
+.SS Concatenation And Removing Empty Lines With \fI-l
+$ cat file
+.br
+a
+.br
+
+.br
+b
+.br
+
+c
+.br
+$ concat -s ';' file
+.br
+a;;b;;c
+.br
+$ concat -s ';' -l file
+.br
+a;b;c
+
+.SS Concatenation And Removing Leading Whitespaces With \fI-w
+$ cat file
+.br
+a
+.br
+  b
+.br
+    c
+.br
+$ concat -s ':' file
+.br
+a:  b:    c
+.br
+$ concat -s ':' -w file
+.br
+a:b:c
+
+.SS Concatenate A Given Number Of Lines With \fI-g\fB and \fI-S
+$ cat file
+.br
+a
+.br
+b
+.br
+c
+.br
+a
+.br
+b
+.br
+c
+.br
+$ concat file
+.br
+abcabc
+.br
+$ concat -g 3 file
+.br
+abc
+.br
+abc
+.br
+$ concat -e -g 3 -S '\\n---\\n' file
+.br
+abc
+.br
+---
+.br
+abc
+
+.SH AUTHOR
+Marco Trosi
+
+.SH "SEE ALSO"
+.BR paste (1)
